@@ -62,3 +62,49 @@ tasks.register("printVersion") {
         println(version)
     }
 }
+
+/* publishing {
+    repositories {
+        maven {
+            name = "central"
+            url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+            credentials {
+                username=System.getenv("PUBLISH_USER")
+                password=System.getenv("PUBLISH_TOKEN")
+            }
+        }
+    }
+
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            afterEvaluate {
+                pom {
+                    name.set("clipboard")
+                    description.set("Modern bootstrap utility launcher for CanvasMC")
+                    url.set("https://github.com/CraftCanvasMC/Clipboard")
+                    licenses {
+                        license {
+                            name.set("MIT")
+                            url.set("https://github.com/CraftCanvasMC/Clipboard/blob/main/license.txt")
+                            distribution.set("repo")
+                        }
+                    }
+                    developers {
+                        developer {
+                            id.set("canvas-team")
+                            name.set("Canvas Team")
+                            organization.set("CanvasMC")
+                            organizationUrl.set("https://canvasmc.io")
+                            roles.add("developer")
+                        }
+                    }
+                    scm {
+                        url.set("https://github.com/CraftCanvasMC/Clipboard")
+                    }
+                }
+            }
+        }
+    }
+} */
