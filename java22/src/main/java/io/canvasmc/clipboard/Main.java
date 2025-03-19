@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.jar.JarFile;
 
 public final class Main {
 
@@ -20,8 +21,6 @@ public final class Main {
 
 	private void run(String[] arguments) {
 		try {
-			String defaultMainClassName = this.readMainClass(BufferedReader::readLine);
-			String mainClassName = System.getProperty("bundlerMainClass", defaultMainClassName);
 			String repoDir = System.getProperty("bundlerRepoDir", "");
 			Path outputDir = Paths.get(repoDir);
 			Files.createDirectories(outputDir);
@@ -44,12 +43,14 @@ public final class Main {
 
 				return jsonContent.split("\"id\": \"")[1].split("\"")[0];
 			};
-			new PatcherBuilder().start(versionProvider);
+			JarFile patched = new PatcherBuilder().start(versionProvider);
 			new LibraryLoader().start(versionProvider);
 			// run after lib loading
 			if (Boolean.getBoolean("paperclip.patchonly")) {
 				System.exit(0);
 			}
+			String defaultMainClassName = this.readMainClass(patched);
+			String mainClassName = System.getProperty("bundlerMainClass", defaultMainClassName);
 			if (mainClassName == null || mainClassName.isEmpty()) {
 				System.out.println("Empty main class specified, exiting");
 				System.exit(0);
@@ -72,19 +73,8 @@ public final class Main {
 		}
 	}
 
-	private <T> T readMainClass(ResourceParser<T> parser) throws Exception {
-		String fullPath = "/META-INF/main-class";
-
-		T var5;
-		try (InputStream is = this.getClass().getResourceAsStream(fullPath)) {
-			if (is == null) {
-				throw new IllegalStateException("Resource " + fullPath + " not found");
-			}
-
-			var5 = parser.parse(new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8)));
-		}
-
-		return var5;
+	private String readMainClass(JarFile patched) throws Exception {
+		return patched.getManifest().getMainAttributes().getValue("Main-Class");
 	}
 
 	@FunctionalInterface

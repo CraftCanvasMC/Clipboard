@@ -52,11 +52,11 @@ public class PatcherBuilder {
 		return hexString.toString();
 	}
 
-	protected void start(Main.Provider<String> versionProvider) throws IOException {
-		start(versionProvider.get());
+	protected JarFile start(Main.Provider<String> versionProvider) throws IOException {
+		return start(versionProvider.get());
 	}
 
-	protected void start(String mcVersion) {
+	protected JarFile start(String mcVersion) {
 		File versionsDirectory = Paths.get("versions").toFile();
 		if (!versionsDirectory.exists()) {
 			versionsDirectory.mkdirs();
@@ -110,7 +110,7 @@ public class PatcherBuilder {
 
 				if (entry == null) {
 					System.out.println("Entry not found in the JAR file.");
-					return;
+					System.exit(70);
 				}
 
 				try (InputStream inputStream = jarFile.getInputStream(entry)) {
@@ -134,7 +134,9 @@ public class PatcherBuilder {
 				throw new RuntimeException("Version file was not found after patching!");
 			}
 
-			Instrumentation.tryAppend(new JarFile(out));
+			JarFile versionJar = new JarFile(out);
+			Instrumentation.tryAppend(versionJar);
+			return versionJar;
 		} catch (IOException | CompressorException | InvalidHeaderException e) {
 			throw new RuntimeException("Unable to build patched jar!", e);
 		} catch (NoSuchAlgorithmException e) {
